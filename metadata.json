@@ -1,0 +1,6 @@
+{
+  "name": "Emergency Prioritizer",
+  "description": "Emergency Service Request Prioritizer DSA application using custom binary Max-Heap",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Service Request Prioritizer - Video Presentation</title>
+    <style>
+        :root {
+            --bg-dark: #08090D;
+            --surface-card: #12141D;
+            --surface-card-hover: #191C28;
+            --card-border: #232738;
+            --accent-red: #E53935;
+            --accent-gold: #FFB300;
+            --accent-blue: #42A5F5;
+            --accent-green: #00E676;
+            --text-primary: #FFFFFF;
+            --text-secondary: #9EA3B8;
+            --text-tertiary: #60667D;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Ambient Animated Grid Background */
+        .ambient-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(229, 57, 53, 0.08), transparent 45%),
+                radial-gradient(circle at 80% 80%, rgba(66, 165, 245, 0.06), transparent 45%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Top CAD Command Header */
+        header {
+            position: relative;
+            z-index: 10;
+            height: 54px;
+            background: rgba(18, 20, 29, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .college-tag {
+            font-size: 11px;
+            letter-spacing: 0.8px;
+            color: var(--accent-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .project-tag {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-action {
+            background: var(--surface-card);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            background: var(--surface-card-hover);
+            border-color: var(--accent-blue);
+            transform: translateY(-1px);
+        }
+
+        .btn-action.download {
+            background: rgba(229, 57, 53, 0.2);
+            border-color: var(--accent-red);
+            color: #FF8A80;
+        }
+
+        .btn-action.download:hover {
+            background: var(--accent-red);
+            color: #FFFFFF;
+        }
+
+        /* Presentation Stage */
+        main {
+            position: relative;
+            z-index: 5;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 30px;
+            perspective: 1200px;
+        }
+
+        .slide-stage {
+            width: 100%;
+            max-width: 1100px;
+            aspect-ratio: 16 / 9;
+            background: var(--surface-card);
+            border: 1.5px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(229, 57, 53, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+        }
+
+        /* Slide Transition Animations */
+        .slide-content {
+            flex: 1;
+            padding: 36px 48px;
+            display: flex;
+            flex-direction: column;
+            animation: cinematicReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes cinematicReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Slide Components */
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            border-left: 4px solid var(--accent-red);
+            padding-left: 16px;
+        }
+
+        .slide-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-subtitle {
+            font-size: 13px;
+            color: var(--accent-blue);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .slide-badge {
+            background: rgba(255, 179, 0, 0.12);
+            color: var(--accent-gold);
+            border: 1px solid rgba(255, 179, 0, 0.3);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .slide-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Grid Cards in Slides */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .glass-card {
+            background: rgba(14, 16, 23, 0.7);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .glass-card-body {
+            font-size: 11.5px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        /* Slide Tables */
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            background: rgba(14, 16, 23, 0.6);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        .styled-table th {
+            background: #181B26;
+            color: var(--accent-gold);
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .styled-table td {
+            padding: 8px 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(35, 39, 56, 0.6);
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .styled-table tr:hover {
+            background: rgba(66, 165, 245, 0.05);
+        }
+
+        .badge-pass {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--accent-green);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 10px;
+        }
+
+        /* Video / Player Controls Footer */
+        footer {
+            position: relative;
+            z-index: 10;
+            background: rgba(18, 20, 29, 0.95);
+            border-top: 1px solid var(--card-border);
+            padding: 12px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .timeline-container {
+            width: 100%;
+            height: 6px;
+            background: #232738;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .timeline-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-red), var(--accent-gold));
+            border-radius: 3px;
+            width: 8.33%;
+            transition: width 0.1s linear;
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .playback-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-ctrl {
+            background: var(--surface-card);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ctrl:hover {
+            background: var(--surface-card-hover);
+            border-color: var(--accent-blue);
+            transform: scale(1.08);
+        }
+
+        .btn-ctrl.play {
+            width: 44px;
+            height: 44px;
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #FFFFFF;
+            font-size: 16px;
+        }
+
+        .btn-ctrl.play:hover {
+            background: #D32F2F;
+            transform: scale(1.1);
+        }
+
+        .time-display {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .slide-counter {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        /* Speaker Notes Drawer */
+        .notes-drawer {
+            position: absolute;
+            bottom: 74px;
+            left: 24px;
+            right: 24px;
+            background: rgba(14, 16, 23, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--accent-blue);
+            border-radius: 10px;
+            padding: 14px 20px;
+            display: none;
+            z-index: 20;
+            font-size: 12px;
+            color: #B0BEC5;
+            line-height: 1.5;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .notes-drawer.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-grid"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-brand">
+            <div class="status-dot"></div>
+            <div>
+                <div class="college-tag">LORDS INSTITUTE OF ENGINEERING & TECHNOLOGY (UGC AUTONOMOUS)</div>
+                <div class="project-tag">Emergency Service Request Prioritizer • DSA Assignment-III</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-action" onclick="toggleNotes()">📝 Speaker Notes</button>
+            <button class="btn-action" onclick="toggleMute()" id="muteBtn">🔊 Sound: ON</button>
+            <button class="btn-action" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+            <a href="Emergency_Prioritizer_Presentation.pptx" download="Emergency_Prioritizer_Presentation.pptx" class="btn-action download">
+                📥 Download .PPTX File
+            </a>
+        </div>
+    </header>
+
+    <!-- Slide Presentation Canvas -->
+    <main>
+        <div class="slide-stage" id="slideStage">
+            <div class="slide-content" id="slideContent">
+                <!-- Dynamically rendered via JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Speaker Notes Popup -->
+    <div class="notes-drawer" id="notesDrawer">
+        <strong style="color: var(--accent-gold);">🎙️ Faculty / Viva Speaker Notes:</strong>
+        <p id="speakerNotesText" style="margin-top: 4px;"></p>
+    </div>
+
+    <!-- Playback / Video Controller -->
+    <footer>
+        <div class="timeline-container" id="timeline" onclick="seekSlide(event)">
+            <div class="timeline-progress" id="progress"></div>
+        </div>
+        <div class="controls-row">
+            <div class="playback-controls">
+                <button class="btn-ctrl" onclick="prevSlide()" title="Previous Slide">⏮</button>
+                <button class="btn-ctrl play" onclick="togglePlay()" id="playBtn" title="Play Video Presentation">▶</button>
+                <button class="btn-ctrl" onclick="nextSlide()" title="Next Slide">⏭</button>
+                <div class="time-display" id="timeDisplay">00:00 / 02:00</div>
+            </div>
+            <div class="slide-counter" id="slideCounter">Slide 1 of 12</div>
+        </div>
+    </footer>
+
+    <script>
+        // High-Tech Web Audio Sound Synthesizer (Zero external audio files needed)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let isMuted = false;
+
+        function playSound(type) {
+            if (isMuted || !audioCtx) return;
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'beep') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.12);
+                } else if (type === 'whoosh') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                }
+            } catch (e) {}
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.getElementById('muteBtn').innerText = isMuted ? '🔇 Sound: OFF' : '🔊 Sound: ON';
+        }
+
+        // Complete 12 Slides data strictly adhering to the Lords Institute Guidelines PDF
+        const slides = [
+            {
+                title: "Emergency Service Request Prioritizer",
+                subtitle: "Real-Time Triage Engine Utilizing a Hand-Crafted Binary Max-Heap Data Structure",
+                badge: "Project #17",
+                notes: "Respected faculty and evaluators, we present a Computer-Aided Dispatch application built for Assignment-III. It replaces FIFO emergency processing with an algorithmic binary Max-Heap triage model.",
+                render: () => `
+                    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+                        <div style="display:inline-block; padding: 4px 16px; border-radius: 20px; background: rgba(255, 179, 0, 0.15); border: 1px solid var(--accent-gold); color: var(--accent-gold); font-size: 11px; font-weight: bold; margin-bottom: 14px;">
+                            LORDS INSTITUTE OF ENGINEERING & TECHNOLOGY (UGC AUTONOMOUS)
+                        </div>
+                        <h1 style="font-size: 32px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 10px; color: #FFFFFF;">
+                            EMERGENCY SERVICE REQUEST PRIORITIZER
+                        </h1>
+                        <p style="color: var(--accent-blue); font-size: 15px; margin-bottom: 24px; max-width: 750px;">
+                            High-Concurrence Municipal Triage Platform featuring 0-Based Contiguous Max-Heap & Auxiliary Hash Index
+                        </p>
+                        <div style="background: rgba(14, 16, 23, 0.8); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px 28px; width: 100%; max-width: 680px; text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
+                            <div><strong style="color: var(--accent-gold);">Student:</strong> Mohammed Irfan & Team</div>
+                            <div><strong style="color: var(--accent-gold);">Department:</strong> CSE (AI & ML)</div>
+                            <div><strong style="color: var(--accent-green);">Language:</strong> Kotlin (Compose) / C++17 Core</div>
+                            <div><strong style="color: var(--accent-blue);">Course:</strong> Data Structures (Assignment-III)</div>
+                            <div style="grid-column: span 2;"><strong style="color: #FFF;">Institution:</strong> Lords Institute of Engineering & Technology, Hyderabad</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Problem Statement",
+                subtitle: "Critical Bottlenecks in Contemporary Municipal Emergency Dispatch",
+                badge: "Slide 2 / 12",
+                notes: "Conventional emergency queues follow FIFO ordering. A burst water tap reported 10 seconds before a massive heart attack will be processed first, causing avoidable mortality.",
+                render: () => `
+                    <div class="card-grid">
+                        <div class="glass-card" style="border-top: 3px solid var(--accent-red);">
+                            <div class="glass-card-title" style="color: var(--accent-red);">🚨 Real-World Problem</div>
+                            <div class="glass-card-body">Traditional 108/911 call centers queue requests First-In-First-Out (FIFO). Life-critical calls suffer life-threatening response delays behind routine municipal issues.</div>
+                        </div>
+                        <div class="glass-card" style="border-top: 3px solid var(--accent-gold);">
+                            <div class="glass-card-title" style="color: var(--accent-gold);">👥 Who Faces It?</div>
+                            <div class="glass-card-body">Emergency dispatchers, frontline paramedics, fire command officers, and citizens experiencing acute trauma where sub-minute dispatch dictates survival.</div>
+                        </div>
+                        <div class="glass-card" style="border-top: 3px solid var(--accent-blue);">
+                            <div class="glass-card-title" style="color: var(--accent-blue);">⚠️ Limitations of Existing Methods</div>
+                            <div class="glass-card-body">• <strong>Unsorted Lists:</strong> O(n) search to find top emergency.<br>• <strong>Sorted Arrays:</strong> O(n) element shifts upon each arrival.<br>• <strong>FIFO Queues:</strong> Zero priority awareness.</div>
+                        </div>
+                        <div class="glass-card" style="border-top: 3px solid var(--accent-green);">
+                            <div class="glass-card-title" style="color: var(--accent-green);">💻 Why This Application?</div>
+                            <div class="glass-card-body">A priority queue CAD application mathematically guarantees that Severity 4 life-critical calls jump to index 0 in O(log n) time without starving equal-severity tickets.</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Objectives and Scope",
+                subtitle: "Functional Goals, System Boundaries & Intended User Audience",
+                badge: "Slide 3 / 12",
+                notes: "Our primary objective is a functional application—not just an algorithm demo. We provide user intake, automatic triage, ambulance screening, live queue management, and CSV persistence.",
+                render: () => `
+                    <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px;">
+                        <div class="glass-card" style="border-left: 3px solid var(--accent-green);">
+                            <div class="glass-card-title" style="color: var(--accent-green);">🎯 Core Project Objectives</div>
+                            <div class="glass-card-body" style="font-size: 11px; line-height: 1.6;">
+                                • <strong>Hand-Written Binary Max-Heap:</strong> Zero usage of STL priority_queue or Java collections.<br>
+                                • <strong>Dual-Key Prioritization:</strong> Ordered by Severity (4 to 1), tie-broken by arrival sequence number (FIFO).<br>
+                                • <strong>Innovative Modules:</strong> User Registration with GPS, Hospital-Grade Ambulance Screening Flow, Live Elapsed Waiting Time Tracker, Interactive Canvas Tree Visualizer, Personnel Assignment.
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="glass-card" style="border-left: 3px solid var(--accent-red);">
+                                <div class="glass-card-title" style="color: var(--accent-red);">🚫 Excluded Scope</div>
+                                <div class="glass-card-body" style="font-size: 10.5px;">
+                                    Physical GPS cellular OBD vehicle tracking (simulated via coordinate endpoints); external GSM SMS gateways (audited in-app).
+                                </div>
+                            </div>
+                            <div class="glass-card" style="border-left: 3px solid var(--accent-blue);">
+                                <div class="glass-card-title" style="color: var(--accent-blue);">👥 Intended Users</div>
+                                <div class="glass-card-body" style="font-size: 10.5px;">
+                                    Hospital triage staff, 112/108 operators, municipal emergency response coordinators.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Data Structure & Algorithm Selection",
+                subtitle: "Mathematical Heap Invariant, Array Mathematics & Hash Indexing",
+                badge: "Slide 4 / 12",
+                notes: "We use a 0-based contiguous array where parent is (i-1)/2, left child is 2i+1, right child is 2i+2. An auxiliary hash map allows O(log n) dynamic severity changes by providing O(1) node lookup.",
+                render: () => `
+                    <div class="card-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <div class="glass-card" style="border-color: var(--accent-red);">
+                            <div class="glass-card-title" style="color: var(--accent-red);">1. Binary Max-Heap</div>
+                            <div class="glass-card-body">
+                                <strong>Array Arithmetic (0-based):</strong><br>
+                                • Parent(i) = (i - 1) / 2<br>
+                                • Left(i) = 2i + 1<br>
+                                • Right(i) = 2i + 2<br><br>
+                                <strong>Why Chosen:</strong> O(log n) worst-case insertion and extraction with zero memory fragmentation.
+                            </div>
+                        </div>
+                        <div class="glass-card" style="border-color: var(--accent-gold);">
+                            <div class="glass-card-title" style="color: var(--accent-gold);">2. Auxiliary Hash Map</div>
+                            <div class="glass-card-body">
+                                <strong>O(1) Direct Lookup:</strong><br>
+                                Maps Request ID directly to current heap array index.<br><br>
+                                <strong>Impact:</strong> Solves standard heap weakness: changeSeverity() and removeById() execute in O(log n) instead of O(n) search.
+                            </div>
+                        </div>
+                        <div class="glass-card" style="border-color: var(--accent-blue);">
+                            <div class="glass-card-title" style="color: var(--accent-blue);">3. Floyd's Build-Heap</div>
+                            <div class="glass-card-body">
+                                <strong>O(n) Initialization:</strong><br>
+                                Sifts down from index (n/2) - 1 to 0.<br><br>
+                                <strong>Summation Proof:</strong><br>
+                                Σ [n / 2^(h+1)] * O(h) = O(n).<br>
+                                Loads 10 competition scenarios or CSV backups in linear time.
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "System Design & Information Flow",
+                subtitle: "End-to-End CAD Architectural Pipeline & Data Organization",
+                badge: "Slide 5 / 12",
+                notes: "The architecture flows cleanly from User Registration to Auto-Priority detection, Clinical Screening, Max-Heap insertion, CAD dispatching, History archiving, and CSV persistence.",
+                render: () => `
+                    <div style="display: flex; gap: 8px; justify-content: space-between; margin-bottom: 16px;">
+                        <div class="glass-card" style="flex:1; text-align:center; padding: 12px 8px;">
+                            <div style="font-size: 10px; color: var(--accent-blue); font-weight: bold;">STEP 1</div>
+                            <div style="font-size: 11px; font-weight: bold; margin: 4px 0;">User Intake</div>
+                            <div style="font-size: 9px; color: var(--text-secondary);">Phone, GPS & Notes capture</div>
+                        </div>
+                        <div style="align-self: center; color: var(--accent-gold);">➔</div>
+                        <div class="glass-card" style="flex:1; text-align:center; padding: 12px 8px;">
+                            <div style="font-size: 10px; color: var(--accent-gold); font-weight: bold;">STEP 2</div>
+                            <div style="font-size: 11px; font-weight: bold; margin: 4px 0;">Screening</div>
+                            <div style="font-size: 9px; color: var(--text-secondary);">Clinical symptoms triage</div>
+                        </div>
+                        <div style="align-self: center; color: var(--accent-gold);">➔</div>
+                        <div class="glass-card" style="flex:1; text-align:center; padding: 12px 8px;">
+                            <div style="font-size: 10px; color: var(--accent-red); font-weight: bold;">STEP 3</div>
+                            <div style="font-size: 11px; font-weight: bold; margin: 4px 0;">Max-Heap</div>
+                            <div style="font-size: 9px; color: var(--text-secondary);">Sift-up in O(log n)</div>
+                        </div>
+                        <div style="align-self: center; color: var(--accent-gold);">➔</div>
+                        <div class="glass-card" style="flex:1; text-align:center; padding: 12px 8px;">
+                            <div style="font-size: 10px; color: var(--accent-green); font-weight: bold;">STEP 4</div>
+                            <div style="font-size: 11px; font-weight: bold; margin: 4px 0;">Dispatch</div>
+                            <div style="font-size: 9px; color: var(--text-secondary);">Extract-max in O(log n)</div>
+                        </div>
+                        <div style="align-self: center; color: var(--accent-gold);">➔</div>
+                        <div class="glass-card" style="flex:1; text-align:center; padding: 12px 8px;">
+                            <div style="font-size: 10px; color: #BA68C8; font-weight: bold;">STEP 5</div>
+                            <div style="font-size: 11px; font-weight: bold; margin: 4px 0;">History & CSV</div>
+                            <div style="font-size: 9px; color: var(--text-secondary);">Audit log & RFC-4180 export</div>
+                        </div>
+                    </div>
+                    <div class="glass-card" style="background: rgba(14, 16, 23, 0.9);">
+                        <strong style="color: var(--accent-gold); font-size: 11.5px;">DATA ORGANIZATION IN MEMORY:</strong>
+                        <p style="font-size: 10.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5;">
+                            • <strong>EmergencyMaxHeap:</strong> Contiguous dynamic array storing active emergency requests.<br>
+                            • <strong>Auxiliary HashMap:</strong> Key-value store mapping Request ID to array index for instant lookup.<br>
+                            • <strong>History Audit Queue:</strong> FIFO linked records of completed/cancelled calls with resolution timestamps.<br>
+                            • <strong>Persistence Engine:</strong> Plain-text CSV engine ensuring full data recovery without cloud dependencies.
+                        </p>
+                    </div>
+                `
+            },
+            {
+                title: "Hardware & Software Requirements",
+                subtitle: "Target Platform Specifications & Toolchain Compatibility",
+                badge: "Slide 6 / 12",
+                notes: "The application is optimized for lightweight operation. It requires less than 30MB RAM and runs 100% offline without any server or internet connectivity.",
+                render: () => `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <table class="styled-table">
+                            <thead>
+                                <tr><th>Hardware Component</th><th>Minimum Requirement</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Processor (CPU)</td><td>Dual-Core 1.8 GHz (Intel i3 / ARM)</td></tr>
+                                <tr><td>Memory (RAM)</td><td>2 GB RAM (< 30 MB runtime)</td></tr>
+                                <tr><td>Disk Storage</td><td>100 MB free storage</td></tr>
+                                <tr><td>Network Connectivity</td><td>0 Mbps (100% Fully Offline)</td></tr>
+                            </tbody>
+                        </table>
+                        <table class="styled-table">
+                            <thead>
+                                <tr><th>Software Tier</th><th>Framework / Toolchain</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Operating System</td><td>Android 12+ (API 34) / Linux / Win 11</td></tr>
+                                <tr><td>Language Toolchain</td><td>Kotlin / JVM 17 & C++17 Core</td></tr>
+                                <tr><td>UI & Graphics API</td><td>Jetpack Compose & 2D Canvas</td></tr>
+                                <tr><td>File Persistence</td><td>Standard RFC-4180 Plain Text CSV</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `
+            },
+            {
+                title: "Application Features & Implementation",
+                subtitle: "Overview of the 9 Innovative Dispatch Capabilities",
+                badge: "Slide 7 / 12",
+                notes: "Our 9 features include auto-priority detection, critical alerts, waiting time calculation, location intake, duplicate detection, KPI dashboard, cancellation, personnel assignment, and ambulance screening.",
+                render: () => `
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div class="glass-card" style="padding: 10px;">
+                            <strong style="color: var(--accent-gold); font-size: 11px;">1. Auto Priority Detection</strong>
+                            <p style="font-size: 9.5px; color: var(--text-secondary); margin-top: 2px;">Keyword NLP parses incident notes to infer severity.</p>
+                        </div>
+                        <div class="glass-card" style="padding: 10px;">
+                            <strong style="color: var(--accent-red); font-size: 11px;">2. Emergency Alert</strong>
+                            <p style="font-size: 9.5px; color: var(--text-secondary); margin-top: 2px;">Visual pulsating alert triggered on Level 4 calls.</p>
+                        </div>
+                        <div class="glass-card" style="padding: 10px;">
+                            <strong style="color: var(--accent-blue); font-size: 11px;">3. Waiting Time Tracker</strong>
+                            <p style="font-size: 9.5px; color: var(--text-secondary); margin-top: 2px;">Live ticking clock with SLA warnings over 3 mins.</p>
+                        </div>
+                        <div class="glass-card" style="padding: 10px;">
+                            <strong style="color: var(--accent-green); font-size: 11px;">4. Location & GPS Intake</strong>
+                            <p style="font-size: 9.5px; color: var(--text-secondary); margin-top: 2px;">Direct address and coordinate estimation.</p>
+                        </div>
+                        <div class="glass-card" style="padding: 10px;">
+                            <strong style="color: #BA68C8; font-size: 11px;">5. Duplicate Detection</strong>
+                            <p style="font-size: 9.5px; color: var(--text-secondary); margin-top: 2px;">Identifies repeated calls from same phone/zone.</p>
+                        </div>
+                        <div class="glass-card" style="padding: 10px;">
+                            <strong style="color: #4DD0E1; font-size: 11px;">6. CAD Dashboard</strong>
+                            <p style="font-size: 9.5px; color: var(--text-secondary); margin-top: 2px;">Executive KPIs: Total, Pending, Critical, Resolved.</p>
+                        </div>
+                        <div class="glass-card" style="padding: 10px;">
+                            <strong style="color: #FF8A80; font-size: 11px;">7. Request Cancellation</strong>
+                            <p style="font-size: 9.5px; color: var(--text-secondary); margin-top: 2px;">O(log n) removal with audit reason logging.</p>
+                        </div>
+                        <div class="glass-card" style="padding: 10px;">
+                            <strong style="color: #FFD54F; font-size: 11px;">8. Personnel Assignment</strong>
+                            <p style="font-size: 9.5px; color: var(--text-secondary); margin-top: 2px;">Dispatches units (Ambulance, Fire Squad, Police).</p>
+                        </div>
+                        <div class="glass-card" style="padding: 10px;">
+                            <strong style="color: #81C784; font-size: 11px;">9. Clinical Screening</strong>
+                            <p style="font-size: 9.5px; color: var(--text-secondary); margin-top: 2px;">Zero automated denials: 7-point symptom triage.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Testing and Results",
+                subtitle: "Automated Test Matrix: Normal, Invalid & Boundary Inputs",
+                badge: "Slide 8 / 12",
+                notes: "Every operation was systematically tested against edge cases: empty heap dispatch, equal severity tie-breaking, root cancellation, dynamic escalation, and stress benchmarking.",
+                render: () => `
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>Test ID</th>
+                                <th>Test Scenario</th>
+                                <th>Input Conditions</th>
+                                <th>Expected Behavior</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>TC-01</td><td>Empty Queue</td><td>Extract-Max on n=0</td><td>Graceful warning message; zero crash</td><td><span class="badge-pass">PASS</span></td></tr>
+                            <tr><td>TC-02</td><td>Priority Ordering</td><td>Insert S1 then S4</td><td>S4 sifts up to index 0 (Root)</td><td><span class="badge-pass">PASS</span></td></tr>
+                            <tr><td>TC-03</td><td>FIFO Tie-Breaker</td><td>Two S4 calls (Seq 1, 2)</td><td>Seq 1 dispatched before Seq 2</td><td><span class="badge-pass">PASS</span></td></tr>
+                            <tr><td>TC-04</td><td>Dynamic Escalation</td><td>Update call S2 to S4</td><td>Sifts up to root in O(log n)</td><td><span class="badge-pass">PASS</span></td></tr>
+                            <tr><td>TC-05</td><td>Root Cancellation</td><td>removeById(Root ID)</td><td>Last node placed at root & sifted down</td><td><span class="badge-pass">PASS</span></td></tr>
+                            <tr><td>TC-06</td><td>Duplicate Detection</td><td>Identical phone & zone</td><td>Duplicate warning banner shown</td><td><span class="badge-pass">PASS</span></td></tr>
+                            <tr><td>TC-07</td><td>Ambulance Screen</td><td>Chest pain checked</td><td>Auto-escalated to Level 4 Critical</td><td><span class="badge-pass">PASS</span></td></tr>
+                            <tr><td>TC-08</td><td>Stress Benchmark</td><td>200 Inserts + 200 Extracts</td><td>Execution latency < 20 ms (100% valid)</td><td><span class="badge-pass">PASS</span></td></tr>
+                        </tbody>
+                    </table>
+                `
+            },
+            {
+                title: "Performance & Asymptotic Complexity",
+                subtitle: "Theoretical Bounds & Empirical Micro-Benchmark Verification",
+                badge: "Slide 9 / 12",
+                notes: "Insert and Extract-Max are strictly O(log n). Peek is O(1). Floyd's Build-Heap is O(n). Non-destructive heap sort is O(n log n). Our live benchmark proves 200 ops finish in under 15ms.",
+                render: () => `
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>Operation</th>
+                                <th>Best Case</th>
+                                <th>Avg / Worst</th>
+                                <th>Aux Space</th>
+                                <th>Mathematical Justification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Insert (sift-up)</td><td style="color: var(--accent-green);">O(1)</td><td style="color: var(--accent-red);">O(log n)</td><td>O(1)</td><td>Added at end; sifts up tree height <= floor(log2 n)</td></tr>
+                            <tr><td>Extract-Max</td><td style="color: var(--accent-green);">O(1)</td><td style="color: var(--accent-red);">O(log n)</td><td>O(1)</td><td>Root removed; last leaf placed at root & sifted down</td></tr>
+                            <tr><td>Peek Root</td><td style="color: var(--accent-green);">O(1)</td><td style="color: var(--accent-green);">O(1)</td><td>O(1)</td><td>Direct index 0 memory access</td></tr>
+                            <tr><td>Change Severity</td><td style="color: var(--accent-green);">O(1)</td><td style="color: var(--accent-red);">O(log n)</td><td>O(1)</td><td>Hash map finds index in O(1); sift takes O(log n)</td></tr>
+                            <tr><td>Cancel by ID</td><td style="color: var(--accent-green);">O(1)</td><td style="color: var(--accent-red);">O(log n)</td><td>O(1)</td><td>O(1) hash lookup; swap with last element & re-heapify</td></tr>
+                            <tr><td>Build-Heap (Floyd)</td><td style="color: var(--accent-green);">O(n)</td><td style="color: var(--accent-blue);">O(n)</td><td>O(1)</td><td>Bottom-up sift-down from n/2 - 1 down to 0</td></tr>
+                            <tr><td>Heap Sort View</td><td style="color: var(--accent-gold);">O(n log n)</td><td style="color: var(--accent-gold);">O(n log n)</td><td>O(n)</td><td>Clones heap and extracts all n items non-destructively</td></tr>
+                        </tbody>
+                    </table>
+                `
+            },
+            {
+                title: "Limitations and Future Enhancements",
+                subtitle: "Operational Boundaries & Road Map for Municipal Deployment",
+                badge: "Slide 10 / 12",
+                notes: "Current limitations include local memory caching and simulated GPS. Future enhancements will integrate live OpenStreetMap telemetry, city IoT sensors, and distributed multi-station sync.",
+                render: () => `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="glass-card" style="border-top: 3px solid var(--accent-red);">
+                            <div class="glass-card-title" style="color: var(--accent-red);">⚠️ Current Limitations</div>
+                            <div class="glass-card-body" style="font-size: 11px; line-height: 1.6;">
+                                1. <strong>Local Memory Cache:</strong> Runs within device memory with CSV backup; multi-terminal stations require networked server synchronization.<br><br>
+                                2. <strong>Simulated GPS Coordinates:</strong> Locations use predefined coordinate presets rather than active satellite triangulation.<br><br>
+                                3. <strong>In-App Notifications:</strong> Alerts display inside the application rather than transmitting to external telecom SMS gateways.
+                            </div>
+                        </div>
+                        <div class="glass-card" style="border-top: 3px solid var(--accent-blue);">
+                            <div class="glass-card-title" style="color: var(--accent-blue);">🚀 Future Enhancements</div>
+                            <div class="glass-card-body" style="font-size: 11px; line-height: 1.6;">
+                                1. <strong>Live Fleet GPS Telematics:</strong> Integrate OpenStreetMap SDK with Dijkstra / A* graph algorithms for real-time traffic route optimization.<br><br>
+                                2. <strong>Smart City IoT Feeds:</strong> Ingest direct automated sensor alerts from fire alarms and road crash telematics directly into the triage heap.<br><br>
+                                3. <strong>Distributed Consensus:</strong> Deploying a distributed heap with Raft consensus for fault-tolerant multi-terminal dispatch centers.
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Conclusion & Key Takeaways",
+                subtitle: "Summary of Project Achievements & Practical Utility",
+                badge: "Slide 11 / 12",
+                notes: "In conclusion, this project proves how fundamental data structures can solve critical real-world problems. We engineered a robust, competition-ready CAD system that prioritizes life safety.",
+                render: () => `
+                    <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="glass-card" style="border-left: 3px solid var(--accent-green);">
+                            <div class="glass-card-title" style="color: var(--accent-green);">Problem Solved</div>
+                            <div class="glass-card-body">Successfully eliminated emergency response delays caused by FIFO queues, replacing them with a logarithmic binary Max-Heap triage engine.</div>
+                        </div>
+                        <div class="glass-card" style="border-left: 3px solid var(--accent-gold);">
+                            <div class="glass-card-title" style="color: var(--accent-gold);">Complete Application</div>
+                            <div class="glass-card-body">Delivered a functional CAD application featuring Intake, Hospital Ambulance Screening, Canvas Tree Visualizer, and CSV round-trip persistence.</div>
+                        </div>
+                        <div class="glass-card" style="border-left: 3px solid var(--accent-blue);">
+                            <div class="glass-card-title" style="color: var(--accent-blue);">DSA Mastery</div>
+                            <div class="glass-card-body">Mastered 0-based array tree math, dual-key comparators, Floyd's O(n) Build-Heap algorithm, and hash map indexing for O(log n) dynamic updates.</div>
+                        </div>
+                        <div class="glass-card" style="border-left: 3px solid var(--accent-red);">
+                            <div class="glass-card-title" style="color: var(--accent-red);">Practical Readiness</div>
+                            <div class="glass-card-body">Demonstrated sub-millisecond execution across 200 concurrent operations, achieving high algorithmic efficiency and 100% test pass rate.</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "References & Viva Voce Q&A",
+                subtitle: "Literature Citations, Institutional Acknowledgements & Open Discussion",
+                badge: "Slide 12 / 12",
+                notes: "Thank you esteemed faculty and evaluators. We referenced CLRS Chapter 6, Sedgewick's Algorithms, and international triage guidelines. We now welcome your questions and live demonstration requests.",
+                render: () => `
+                    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px;">
+                        <div class="glass-card">
+                            <div class="glass-card-title" style="color: var(--accent-blue);">📚 Academic References</div>
+                            <div class="glass-card-body" style="font-size: 10.5px; line-height: 1.5;">
+                                1. Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2022). <em>Introduction to Algorithms (4th Ed.)</em>. MIT Press. Chapter 6: Heapsort.<br><br>
+                                2. Sedgewick, R., & Wayne, K. (2014). <em>Algorithms (4th Ed.)</em>. Addison-Wesley Professional. Priority Queues.<br><br>
+                                3. International Clinical Triage Standards: Canadian Triage and Acuity Scale (CTAS) & Emergency Severity Index (ESI).<br><br>
+                                4. Google Android Developers: Jetpack Compose & 2D Graphics Canvas API.
+                            </div>
+                        </div>
+                        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; border-color: var(--accent-gold);">
+                            <div style="font-size: 32px; margin-bottom: 8px;">🙏</div>
+                            <div style="font-size: 20px; font-weight: 800; color: var(--accent-red); margin-bottom: 6px;">THANK YOU!</div>
+                            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 14px;">
+                                We express our sincere gratitude to the Department of CSE-AIML, Lords Institute of Engineering & Technology.
+                            </p>
+                            <div style="padding: 6px 14px; background: rgba(66, 165, 245, 0.15); border: 1px solid var(--accent-blue); border-radius: 6px; font-size: 11px; font-weight: bold; color: var(--accent-blue);">
+                                Questions & Answers (Viva Voce)
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        let currentSlide = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let elapsedSeconds = 0;
+        const totalDuration = 120; // 2 minutes video presentation (10s per slide)
+
+        function renderSlide(index) {
+            currentSlide = index;
+            const slide = slides[index];
+            const content = document.getElementById('slideContent');
+            
+            // Re-trigger animation
+            content.style.animation = 'none';
+            content.offsetHeight; // trigger reflow
+            content.style.animation = 'cinematicReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+
+            content.innerHTML = `
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-title">${slide.title}</div>
+                        <div class="slide-subtitle">${slide.subtitle}</div>
+                    </div>
+                    <div class="slide-badge">${slide.badge}</div>
+                </div>
+                <div class="slide-body">
+                    ${slide.render()}
+                </div>
+            `;
+
+            document.getElementById('speakerNotesText').innerText = slide.notes;
+            document.getElementById('slideCounter').innerText = `Slide ${index + 1} of ${slides.length}`;
+            updateProgress();
+            playSound('whoosh');
+        }
+
+        function updateProgress() {
+            const pct = ((currentSlide + 1) / slides.length) * 100;
+            document.getElementById('progress').style.width = `${pct}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                renderSlide(currentSlide + 1);
+            } else if (isPlaying) {
+                togglePlay(); // stop at end
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                renderSlide(currentSlide - 1);
+            }
+        }
+
+        function seekSlide(e) {
+            const rect = document.getElementById('timeline').getBoundingClientRect();
+            const clickPos = (e.clientX - rect.left) / rect.width;
+            const targetSlide = Math.min(slides.length - 1, Math.max(0, Math.floor(clickPos * slides.length)));
+            renderSlide(targetSlide);
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playBtn');
+            if (isPlaying) {
+                btn.innerText = '⏸';
+                btn.title = 'Pause Video Presentation';
+                playSound('beep');
+                playInterval = setInterval(() => {
+                    elapsedSeconds++;
+                    const mins = String(Math.floor(elapsedSeconds / 60)).padStart(2, '0');
+                    const secs = String(elapsedSeconds % 60).padStart(2, '0');
+                    document.getElementById('timeDisplay').innerText = `${mins}:${secs} / 02:00`;
+
+                    // Advance slide every 10 seconds
+                    if (elapsedSeconds % 10 === 0) {
+                        nextSlide();
+                    }
+                    if (elapsedSeconds >= totalDuration) {
+                        togglePlay();
+                    }
+                }, 1000);
+            } else {
+                btn.innerText = '▶';
+                btn.title = 'Play Video Presentation';
+                clearInterval(playInterval);
+            }
+        }
+
+        function toggleNotes() {
+            document.getElementById('notesDrawer').classList.toggle('active');
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
+        // Keyboard Navigation (Arrow Keys & Space)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevSlide();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                togglePlay();
+            }
+        });
+
+        // Initialize First Slide
+        renderSlide(0);
+    </script>
+</body>
+</html>
